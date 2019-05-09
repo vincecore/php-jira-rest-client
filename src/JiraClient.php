@@ -56,6 +56,14 @@ class JiraClient
     protected $configuration;
 
     /**
+     * @var array
+     */
+    private $headers = [
+        'Accept: */*',
+        'X-Atlassian-Token: no-check',
+    ];
+
+    /**
      * Constructor.
      *
      * @param ConfigurationInterface $configuration
@@ -221,8 +229,9 @@ class JiraClient
         }
 
         curl_setopt($ch, CURLOPT_ENCODING, '');
-        curl_setopt($ch, CURLOPT_HTTPHEADER,
-            ['Accept: */*', 'Content-Type: application/json', 'X-Atlassian-Token: no-check']);
+        $headers = $this->headers;
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         curl_setopt($ch, CURLOPT_VERBOSE, $this->getConfiguration()->isCurlOptVerbose());
 
@@ -314,11 +323,10 @@ class JiraClient
         if (!function_exists('ini_get') || !ini_get('open_basedir')) {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Accept: */*',
-            'Content-Type: multipart/form-data',
-            'X-Atlassian-Token: nocheck',
-        ]);
+
+        $headers = $this->headers;
+        $headers[] = 'Content-Type: multipart/form-data';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         curl_setopt($ch, CURLOPT_VERBOSE, $this->getConfiguration()->isCurlOptVerbose());
 
@@ -552,8 +560,9 @@ class JiraClient
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER,
-            ['Accept: */*', 'Content-Type: application/json', 'X-Atlassian-Token: no-check']);
+        $headers = $this->headers;
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         curl_setopt($ch, CURLOPT_VERBOSE, $this->getConfiguration()->isCurlOptVerbose());
 
@@ -606,6 +615,13 @@ class JiraClient
     public function setCookieFile($cookieFile)
     {
         $this->cookieFile = $cookieFile;
+
+        return $this;
+    }
+
+    public function addHeader($header)
+    {
+        $this->headers[] = $header;
 
         return $this;
     }
